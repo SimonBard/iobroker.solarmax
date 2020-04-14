@@ -1,0 +1,78 @@
+{
+	"common": {
+		"name": "solarmax-iobroker-adapter",
+		"version": "0.0.1",
+		"news": {
+			"0.0.1": {
+				"en": "initial release",
+				"de": "Erstveröffentlichung",
+				"ru": "Начальная версия",
+				"pt": "lançamento inicial",
+				"nl": "Eerste uitgave",
+				"fr": "Première version",
+				"it": "Versione iniziale",
+				"es": "Versión inicial",
+				"pl": "Pierwsze wydanie",
+				"zh-cn": "首次出版"
+			}
+		},
+		"title": "Solarmax",
+		"titleLang": {
+			"en": "Solarmax",
+			"de": "Solarmax",
+			"ru": "Solarmax",
+			"pt": "Solarmax",
+			"nl": "Solarmax",
+			"fr": "Solarmax",
+			"it": "Solarmax",
+			"es": "Solarmax",
+			"pl": "Solarmax",
+			"zh-cn": "太阳最大"
+		},
+		"desc": {
+			"en": "This adapter is intended to query data from a Solarmax solar power inverter. It uses no standard communication protocol (as modbus or RESTapi) as this seems not to be implemented by the manufacturer.",
+			"de": "Dieser Adapter dient zum Abfragen von Daten eines Solarmax-Solarwechselrichters. ",
+			"ru": "Этот адаптер предназначен для запроса данных от солнечного инвертора Solarmax. ",
+			"pt": "Este adaptador destina-se a consultar dados de um inversor de energia solar Solarmax. ",
+			"nl": "Deze adapter is bedoeld om gegevens op te vragen van een Solarmax omvormer voor zonne-energie. ",
+			"fr": "Cet adaptateur est destiné à interroger les données d'un onduleur solaire Solarmax. ",
+			"it": "Questo adattatore ha lo scopo di interrogare i dati da un inverter di energia solare Solarmax. ",
+			"es": "Este adaptador está diseñado para consultar datos de un inversor de energía solar Solarmax. ",
+			"pl": "Ten adapter służy do wyszukiwania danych z falownika solarnego Solarmax. ",
+			"zh-cn": "该适配器旨在查询来自Solarmax太阳能逆变器的数据。"
+		},
+		"authors": [
+			"Simon Bard <notmyham@gmail.com>"
+		],
+		"keywords": [
+			"Solarmax",
+			"inverter",
+			"power"
+		],
+		"license": "GPL-3.0",
+		"platform": "Javascript/Node.js",
+		"main": "main.js",
+		"icon": "solarmax-iobroker-adapter.png",
+		"enabled": true,
+		"extIcon": "https://raw.githubusercontent.com/SimonB /ioBroker.solarmax-iobroker-adapter/master/admin/solarmax-iobroker-adapter.png",
+		"readme": "https://github.com/SimonB /ioBroker.solarmax-iobroker-adapter/blob/master/README.md",
+		"loglevel": "info",
+		"mode": "daemon",
+		"type": "energy",
+		"compact": true,
+		"connectionType": "local",
+		"dataSource": "poll",
+		"materialize": true,
+		"dependencies": [
+			{
+				"js-controller": ">=1.4.2"
+			}
+		]
+	},
+	"native": {
+		"option1": true,
+		"option2": "42"
+	},
+	"objects": [],
+	"instanceObjects": []
+}
