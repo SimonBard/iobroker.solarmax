@@ -1,5 +1,5 @@
 ![Logo](admin/solarmax-iobroker-adapter.png)
-# ioBroker.solarmax-iobroker-adapter
+# ioBroker.solarmax
 
 [![NPM version](http://img.shields.io/npm/v/iobroker.solarmax-iobroker-adapter.svg)](https://www.npmjs.com/package/iobroker.solarmax-iobroker-adapter)
 [![Downloads](https://img.shields.io/npm/dm/iobroker.solarmax-iobroker-adapter.svg)](https://www.npmjs.com/package/iobroker.solarmax-iobroker-adapter)
@@ -10,7 +10,7 @@
 
 [![NPM](https://nodei.co/npm/iobroker.solarmax-iobroker-adapter.png?downloads=true)](https://nodei.co/npm/iobroker.solarmax-iobroker-adapter/)
 
-## solarmax-iobroker-adapter adapter for ioBroker
+## solarmax
 
 This adapter is intended to query data from a Solarmax solar power inverter. It uses no standard communication protocol (as modbus or RESTapi) as this seems not to be implemented by the manufacturer.
 
