@@ -36,10 +36,28 @@ class SolarmaxIobrokerAdapter extends utils.Adapter {
 	 */
 	async onReady() {
 		// Initialize your adapter here
+
+
+		// State setzen
+		this.setObjectNotExists('data.PV-Leistung', {
+			type: 'channel',
+			common: {
+				name: 'name',
+				type: 'number',
+				
+				read: false,
+				write: true,
+				unit: 'W'
+			},
+			native: {}
+		});
+
+
+
 		this.log.info('Nachricht von Simon: onReady ist gestartet, jetzt kommt init');
 
 		try {
-			lib.init(this, '192.168.178.6', 12345);
+			await lib.init(this, '192.168.178.6', 12345);
 			this.log.info('Adapter wurde gestartet');
 		} catch (error) {
 			this.log.error(error);
@@ -64,28 +82,20 @@ class SolarmaxIobrokerAdapter extends utils.Adapter {
 		Here a simple template for a boolean variable named "testVariable"
 		Because every adapter instance uses its own unique namespace variable names can't collide with other adapters variables
 		*/
-		this.setObjectNotExists('account.balance.' + balance.asset, {
-			type: 'state',
-			common: {
-				name: balance.asset,
-				type: 'number',
-				role: 'value',
-				read: true,
-				write: false
-			},
-			native: {}
-		});
-		this.setState('account.balance.' + balance.asset, balance.free);
+
 
 		// in this template all states changes inside the adapters namespace are subscribed
 		this.subscribeStates('*');
+
+
 
 		/*
 		setState examples
 		you will notice that each setState will cause the stateChange event to fire (because of above subscribeStates cmd)
 		*/
 		// the variable testVariable is set to true as command (ack=false)
-		await this.setStateAsync('PV-Leistung', 500);
+		this.setState('data.PV-Leistung', 500, true);
+		this.setState('data.PV-Leistung', 600, true);
 
 		// same thing, but the value is flagged "ack"
 		// ack should be always set to true if the value is received from or acknowledged from the target system
