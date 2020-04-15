@@ -12,7 +12,7 @@ const utils = require('@iobroker/adapter-core');
 // const fs = require("fs");
 
 const lib = require('./lib/lib.js');
-let adapter;
+
 
 class SolarmaxIobrokerAdapter extends utils.Adapter {
 
@@ -36,13 +36,23 @@ class SolarmaxIobrokerAdapter extends utils.Adapter {
 	 */
 	async onReady() {
 		// Initialize your adapter here
+		this.log.info('Nachricht von Simon: onReady ist gestartet, jetzt kommt init');
+
+		try {
+			lib.init(this, '192.168.178.6', 12345);
+			this.log.info('Adapter wurde gestartet');
+		} catch (error) {
+			this.log.error(error);
+			this.log.info('Adapter start failed');
+		}
+
 		
-		lib.init(adapter ,'192.168.178.6', 12345);
+		this.log.info('Das steht nach dem init');
 		
 		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Das Query soll eigentlich alle X sekunden gesendet werden !!!!!!!!!!!!!!!!!!!!!!!
 		
 		lib.query(['PAC', 'KDY']);
-		adapter.setStateChanged('PV-Leistung', 500, true);
+		
 
 		// The adapters config (in the instance object everything under the attribute "native") is accessible via
 		// this.config:
@@ -54,18 +64,18 @@ class SolarmaxIobrokerAdapter extends utils.Adapter {
 		Here a simple template for a boolean variable named "testVariable"
 		Because every adapter instance uses its own unique namespace variable names can't collide with other adapters variables
 		*/
-		await this.setObjectAsync('PV-Leistung', {
+		this.setObjectNotExists('account.balance.' + balance.asset, {
 			type: 'state',
 			common: {
-				name: 'testVariable',
+				name: balance.asset,
 				type: 'number',
-				role: 'indicator',
+				role: 'value',
 				read: true,
-				write: true,
-				unit: 'W',
+				write: false
 			},
-			native: {},
+			native: {}
 		});
+		this.setState('account.balance.' + balance.asset, balance.free);
 
 		// in this template all states changes inside the adapters namespace are subscribed
 		this.subscribeStates('*');
@@ -75,7 +85,7 @@ class SolarmaxIobrokerAdapter extends utils.Adapter {
 		you will notice that each setState will cause the stateChange event to fire (because of above subscribeStates cmd)
 		*/
 		// the variable testVariable is set to true as command (ack=false)
-		//await this.setStateAsync('testVariable', true);
+		await this.setStateAsync('PV-Leistung', 500);
 
 		// same thing, but the value is flagged "ack"
 		// ack should be always set to true if the value is received from or acknowledged from the target system
