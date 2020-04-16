@@ -40,7 +40,7 @@ class SolarmaxIobrokerAdapter extends utils.Adapter {
 
 
 		// State setzen
-		this.setObjectNotExists('data.PV-Leistung', {
+		this.setObjectNotExists('data.Power', {
 			type: 'channel',
 			common: {
 				name: 'name',
@@ -118,11 +118,13 @@ class SolarmaxIobrokerAdapter extends utils.Adapter {
 		// Testweise ein sDevMAC eingeführt
 		const sDevMAC = 'TestDevice';
 		await this.createDevice(sDevMAC);
-		await this.createState(sDevMAC, "", "temperature", { role: "level", write: true, type: "number", unit: "°C", min: 5, max: 30 });
+		//await this.createState(sDevMAC, "", "temperature", { role: "level", write: true, type: "number", unit: "°C", min: 5, max: 30 });
+		await this.createState(sDevMAC, "", "data.PVLeistung", { role: "level", write: true, type: "number", unit: "W"});
+		
 
-		lib.query(['PAC']);
+		await lib.query(['PAC']);
 
-		this.UpdateStates();
+		this.UpdateStates(sDevMAC);
 
 		// in this template all states changes inside the adapters namespace are subscribed
 		this.subscribeStates('*');
@@ -218,12 +220,13 @@ class SolarmaxIobrokerAdapter extends utils.Adapter {
 	// 	}
 	// }
 
-	UpdateStates() {
+	UpdateStates(sDevMAC) {
 
-		UpdateIntervall = setTimeout(() => this.UpdateStates(), 2 * 1000);
+		UpdateIntervall = setTimeout(() => this.UpdateStates(), 4 * 1000);
 			//UpdateIntervall = setTimeout(() => this.UpdateStates(), this.config.Abfrageintervall * 1000);
 		
 		lib.query(['PAC']);
+		//this.setStateAsync(sDevMAC + ".temperature", { val: lib.values[0], ack: true });
 
 	}
 
