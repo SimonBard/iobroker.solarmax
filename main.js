@@ -12,6 +12,7 @@ const utils = require('@iobroker/adapter-core');
 // const fs = require("fs");
 
 const lib = require('./lib/lib.js');
+let UpdateIntervall = null;
 
 
 class SolarmaxIobrokerAdapter extends utils.Adapter {
@@ -53,9 +54,6 @@ class SolarmaxIobrokerAdapter extends utils.Adapter {
 		});
 
 
-
-		this.log.info('Nachricht von Simon: onReady ist gestartet, jetzt kommt init');
-
 		try {
 			await lib.init(this, '192.168.178.6', 12345);
 			this.log.info('Adapter wurde gestartet');
@@ -65,13 +63,7 @@ class SolarmaxIobrokerAdapter extends utils.Adapter {
 		}
 
 		
-		this.log.info('Das steht nach dem init');
 		
-		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Das Query soll eigentlich alle X sekunden gesendet werden !!!!!!!!!!!!!!!!!!!!!!!
-		
-		lib.query(['PAC', 'KDY']);
-		
-
 		// The adapters config (in the instance object everything under the attribute "native") is accessible via
 		// this.config:
 		//this.log.info('config option1: ' + this.config.option1);
@@ -84,6 +76,54 @@ class SolarmaxIobrokerAdapter extends utils.Adapter {
 		*/
 
 
+		this.setObjectNotExists('data.PVLeistung', {
+			type: "state",
+			common: {
+				name: 'PV-Leistung',
+				type: 'number',
+				role: 'value',
+				read:  true,
+				write: true,
+				unit: 'W',
+			},
+			native: {}
+		});
+
+		this.setObjectNotExists('data.LeistungHeute', {
+			type: "state",
+			common: {
+				name: 'LeistungHeute',
+				type: 'number',
+				role: 'value',
+				read:  true,
+				write: true,
+				unit: 'W',
+			},
+			native: {}
+		});
+
+		this.setObjectNotExists('data.Test', {
+			type: "state",
+			common: {
+				name: 'Test',
+				type: 'number',
+				role: 'value',
+				read: true,
+				write: true,
+				unit: 'W',
+			},
+			native: {}
+		});
+
+		// Testweise ein sDevMAC eingeführt
+		const sDevMAC = 'TestDevice';
+		await this.createDevice(sDevMAC);
+		await this.createState(sDevMAC, "", "temperature", { role: "level", write: true, type: "number", unit: "°C", min: 5, max: 30 });
+
+		lib.query(['PAC']);
+
+		//this.UpdateStates();
+
 		// in this template all states changes inside the adapters namespace are subscribed
 		this.subscribeStates('*');
 
@@ -94,8 +134,10 @@ class SolarmaxIobrokerAdapter extends utils.Adapter {
 		you will notice that each setState will cause the stateChange event to fire (because of above subscribeStates cmd)
 		*/
 		// the variable testVariable is set to true as command (ack=false)
-		this.setState('data.PV-Leistung', 500, true);
-		this.setState('data.PV-Leistung', 600, true);
+
+		// hier könnte man das array aus der lib abfragen und in die states schreiben
+		this.setState('data.LeistungHeute', 500, true);
+		
 
 		// same thing, but the value is flagged "ack"
 		// ack should be always set to true if the value is received from or acknowledged from the target system
@@ -118,6 +160,10 @@ class SolarmaxIobrokerAdapter extends utils.Adapter {
 	 */
 	onUnload(callback) {
 		try {
+			if (UpdateIntervall) {
+				clearInterval(UpdateIntervall);
+				UpdateIntervall = null;
+			}
 			this.log.info('cleaned everything up...');
 			callback();
 		} catch (e) {
@@ -171,6 +217,16 @@ class SolarmaxIobrokerAdapter extends utils.Adapter {
 	// 		}
 	// 	}
 	// }
+
+	UpdateStates() {
+
+		UpdateIntervall = setTimeout(() => this.UpdateStates(), 2 * 1000);
+			//UpdateIntervall = setTimeout(() => this.UpdateStates(), this.config.Abfrageintervall * 1000);
+		
+		
+
+	}
+
 
 }
 
