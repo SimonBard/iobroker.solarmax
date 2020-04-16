@@ -223,7 +223,7 @@ class SolarmaxIobrokerAdapter extends utils.Adapter {
 		UpdateIntervall = setTimeout(() => this.UpdateStates(), 2 * 1000);
 			//UpdateIntervall = setTimeout(() => this.UpdateStates(), this.config.Abfrageintervall * 1000);
 		
-		
+		lib.query(['PAC']);
 
 	}
 
