@@ -122,7 +122,7 @@ class SolarmaxIobrokerAdapter extends utils.Adapter {
 
 		lib.query(['PAC']);
 
-		//this.UpdateStates();
+		this.UpdateStates();
 
 		// in this template all states changes inside the adapters namespace are subscribed
 		this.subscribeStates('*');
