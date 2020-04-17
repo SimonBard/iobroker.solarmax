@@ -14,6 +14,7 @@ const utils = require('@iobroker/adapter-core');
 const lib = require('./lib/lib.js');
 let UpdateIntervall = null;
 
+var schedule = require('node-schedule'); 
 
 class SolarmaxIobrokerAdapter extends utils.Adapter {
 
@@ -40,12 +41,12 @@ class SolarmaxIobrokerAdapter extends utils.Adapter {
 
 
 		// State setzen
-		this.setObjectNotExists('data.Power', {
-			type: 'channel',
+		this.setObjectNotExists('data.PAC', {
+			type: 'state',
 			common: {
-				name: 'name',
+				name: 'Current_Power',
 				type: 'number',
-				
+				role: 'value',
 				read: false,
 				write: true,
 				unit: 'W'
@@ -53,6 +54,31 @@ class SolarmaxIobrokerAdapter extends utils.Adapter {
 			native: {}
 		});
 
+		this.setObjectNotExists('data.KLD', {
+			type: 'state',
+			common: {
+				name: 'Energy_Yesterday',
+				type: 'number',
+				role: 'value',
+				read: false,
+				write: true,
+				unit: 'kWh'
+			},
+			native: {}
+		});
+
+		this.setObjectNotExists('data.KLM', {
+			type: 'state',
+			common: {
+				name: 'Energy_Last_Month',
+				type: 'number',
+				role: 'value',
+				read: false,
+				write: true,
+				unit: 'kWh'
+			},
+			native: {}
+		});
 
 		try {
 			await lib.init(this, '192.168.178.6', 12345);
@@ -89,47 +115,37 @@ class SolarmaxIobrokerAdapter extends utils.Adapter {
 			native: {}
 		});
 
-		this.setObjectNotExists('data.LeistungHeute', {
-			type: "state",
-			common: {
-				name: 'LeistungHeute',
-				type: 'number',
-				role: 'value',
-				read:  true,
-				write: true,
-				unit: 'W',
-			},
-			native: {}
-		});
 
-		this.setObjectNotExists('data.Test', {
-			type: "state",
-			common: {
-				name: 'Test',
-				type: 'number',
-				role: 'value',
-				read: true,
-				write: true,
-				unit: 'W',
-			},
-			native: {}
-		});
+		await lib.query(['PAC', 'KDY', 'KLD',  'KLM']);
 
-		// Testweise ein sDevMAC eingeführt
-		const sDevMAC = 'TestDevice';
-		await this.createDevice(sDevMAC);
-		//await this.createState(sDevMAC, "", "temperature", { role: "level", write: true, type: "number", unit: "°C", min: 5, max: 30 });
-		await this.createState(sDevMAC, "", "data.PVLeistung", { role: "level", write: true, type: "number", unit: "W"});
-		
-
-		await lib.query(['PAC']);
-
-		this.UpdateStates(sDevMAC);
+		this.UpdateStates();
 
 		// in this template all states changes inside the adapters namespace are subscribed
 		this.subscribeStates('*');
 
 
+		// Die Verbindung wird morgens neu hergestellt, weil der Adapter die Verbinung 
+		// nur einmal herstellt und anschließend nur requests schickt. Morgens muss dann irgendwann die Verbindung neu aufgebaut werden
+
+		const frueh = schedule.scheduleJob({ hour: 5, minute: 30 }, () => {
+
+			this.log.info('Baue jetzt um 05:30 Uhr Verbindung neu auf');
+
+			try {
+
+				lib.init(this, '192.168.178.6', 12345);
+
+				this.log.info('Adapter wurde gestartet');
+
+			} catch (error) {
+
+				this.log.error(error);
+
+				this.log.info('Adapter start failed');
+
+			}
+
+		});
 
 		/*
 		setState examples
@@ -137,8 +153,7 @@ class SolarmaxIobrokerAdapter extends utils.Adapter {
 		*/
 		// the variable testVariable is set to true as command (ack=false)
 
-		// hier könnte man das array aus der lib abfragen und in die states schreiben
-		this.setState('data.LeistungHeute', 500, true);
+
 		
 
 		// same thing, but the value is flagged "ack"
@@ -220,12 +235,12 @@ class SolarmaxIobrokerAdapter extends utils.Adapter {
 	// 	}
 	// }
 
-	UpdateStates(sDevMAC) {
+	UpdateStates() {
 
-		UpdateIntervall = setTimeout(() => this.UpdateStates(), 4 * 1000);
+		UpdateIntervall = setTimeout(() => this.UpdateStates(), 10 * 1000);
 			//UpdateIntervall = setTimeout(() => this.UpdateStates(), this.config.Abfrageintervall * 1000);
 		
-		lib.query(['PAC']);
+		lib.query(['PAC', 'KDY', 'KLD', 'KLM']);
 		//this.setStateAsync(sDevMAC + ".temperature", { val: lib.values[0], ack: true });
 
 	}
