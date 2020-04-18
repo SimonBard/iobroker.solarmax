@@ -254,7 +254,7 @@ class SolarmaxIobrokerAdapter extends utils.Adapter {
 
 		let Abfrageintervall = 10;
 		if (this.config.Abfrageintervall > 0) {
-			Abfrageintervall = this.config.Abfrageintervall
+			Abfrageintervall = this.config.Abfrageintervall;
         }
 
 		UpdateIntervall = setTimeout(() => this.UpdateStates(), Abfrageintervall * 1000);
