@@ -13,6 +13,7 @@ const utils = require('@iobroker/adapter-core');
 
 const lib = require('./lib/lib.js');
 let UpdateIntervall = null;
+let host;
 
 var schedule = require('node-schedule'); 
 
@@ -44,7 +45,20 @@ class SolarmaxIobrokerAdapter extends utils.Adapter {
 		this.setObjectNotExists('data.PAC', {
 			type: 'state',
 			common: {
-				name: 'Current_Power',
+				name: 'Current_Power_AC',
+				type: 'number',
+				role: 'value',
+				read: false,
+				write: true,
+				unit: 'W'
+			},
+			native: {}
+		});
+
+		this.setObjectNotExists('data.PIN', {
+			type: 'state',
+			common: {
+				name: 'Current_Power_DC',
 				type: 'number',
 				role: 'value',
 				read: false,
@@ -80,8 +94,11 @@ class SolarmaxIobrokerAdapter extends utils.Adapter {
 			native: {}
 		});
 
+		host = this.config.ipaddress;
+
+
 		try {
-			await lib.init(this, '192.168.178.6', 12345);
+			await lib.init(this, host, 12345);
 			this.log.info('Adapter wurde gestartet');
 		} catch (error) {
 			this.log.error(error);
@@ -116,8 +133,6 @@ class SolarmaxIobrokerAdapter extends utils.Adapter {
 		});
 
 
-		await lib.query(['PAC', 'KDY', 'KLD',  'KLM']);
-
 		this.UpdateStates();
 
 		// in this template all states changes inside the adapters namespace are subscribed
@@ -133,7 +148,7 @@ class SolarmaxIobrokerAdapter extends utils.Adapter {
 
 			try {
 
-				lib.init(this, '192.168.178.6', 12345);
+				lib.init(this, host, 12345);
 
 				this.log.info('Adapter wurde gestartet');
 
@@ -237,13 +252,38 @@ class SolarmaxIobrokerAdapter extends utils.Adapter {
 
 	UpdateStates() {
 
-		UpdateIntervall = setTimeout(() => this.UpdateStates(), 10 * 1000);
-			//UpdateIntervall = setTimeout(() => this.UpdateStates(), this.config.Abfrageintervall * 1000);
+		let Abfrageintervall = 10;
+		if (this.config.Abfrageintervall > 0) {
+			Abfrageintervall = this.config.Abfrageintervall
+        }
+
+		UpdateIntervall = setTimeout(() => this.UpdateStates(), Abfrageintervall * 1000);
+
+
+		this.SendQueryToLib();
 		
-		lib.query(['PAC', 'KDY', 'KLD', 'KLM']);
-		//this.setStateAsync(sDevMAC + ".temperature", { val: lib.values[0], ack: true });
 
 	}
+
+	SendQueryToLib() {
+
+		try {
+
+			await lib.query(['PAC', 'KDY', 'KLD', 'KLM', 'PIN']);
+
+			this.log.info('Werte abfragen ok');
+
+		} catch (error) {
+
+			this.log.error(error);
+
+			this.log.info('Keine Antwort von WR. Keine Einstrahlung?');
+
+		}
+
+		
+    }
+
 
 
 }
